@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title> Table </title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">   
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'output.css' %}">         
+    </head>
+    <body>
+          <div class="container py-5">
+            <header class="text-center text-white">
+              <h1 class="display-4 title">File Processed And Converted Sucessfully!</h1>
+              <button type="button" class="btn btn-warning" id="download-button"> Click to Download CSV</button>
+              <a href="{% url 'index' %}"><button type="button" class="btn btn-info"> Convert Another File</button></a>
+            </header>
+            <div class="row py-5">
+              <div class="col-lg-10 mx-auto">
+                <div class="card rounded shadow border-0">
+                  <div class="card-body p-5 bg-white rounded">
+                    <div class="table-responsive">
+                      <table id="example" style="width:100%" class="table table-striped table-bordered">
+                        <tr>
+                          {% for col in df.columns %}
+                            <td>
+                              {{col}}
+                            </td>
+                          {% endfor %}
+                        </tr>
+                          {% for index, row in df.iterrows %}
+                            <tr>
+                              {% for cell in row %}
+                                <td>
+                                  {{cell}}
+                                </td>
+                              {% endfor %}
+                            </tr>
+                          {% endfor %}
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+    </body>
+</html>
+
+<script>
+function htmlToCSV(html, filename) {
+	var data = [];
+	var rows = document.querySelectorAll("table tr");
+			
+	for (var i = 0; i < rows.length; i++) {
+		var row = [], cols = rows[i].querySelectorAll("td, th");
+				
+		for (var j = 0; j < cols.length; j++) {
+		        row.push(cols[j].innerText);
+        }
+		        
+		data.push(row.join(",")); 		
+	}
+
+	downloadCSVFile(data.join("\n"), filename);
+}
+function downloadCSVFile(csv, filename) {
+	var csv_file, download_link;
+
+	csv_file = new Blob([csv], {type: "text/csv"});
+
+	download_link = document.createElement("a");
+
+	download_link.download = filename;
+
+	download_link.href = window.URL.createObjectURL(csv_file);
+
+	download_link.style.display = "none";
+
+	document.body.appendChild(download_link);
+
+	download_link.click();
+}
+document.getElementById("download-button").addEventListener("click", function () {
+	var html = document.querySelector("table").outerHTML;
+	htmlToCSV(html, "result.csv");
+});
+
+$(function() {
+  $(document).ready(function() {
+    $('#example').DataTable();
+  });
+});
+
+</script>
