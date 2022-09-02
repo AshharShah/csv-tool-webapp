@@ -1,3 +1,4 @@
+from cgitb import text
 from django.shortcuts import render
 import urllib.request
 import json
@@ -40,7 +41,13 @@ def output(request):
         URL     = "https://www.google.com/search?q=Allintitle:" + str(keyToSearch)
         result = requests.get(URL, headers=headers)    
         soup = BeautifulSoup(result.content, 'html.parser')
-        total_results_text = soup.find("div", {"id": "result-stats"}).find(text=True, recursive=False) # this will give you the outer text which is like 'About 1,410,000,000 results'
+
+        text = soup.find("div", {"id": "slim_appbar"}).find(text=True)
+
+        if text is not None:
+            total_results_text = soup.find("div", {"id": "result-stats"}).find(text=True, recursive=False) # this will give you the outer text which is like 'About 1,410,000,000 results'
+        else: 
+            total_results_text = "About 0 results"
         results_num = ''.join([num for num in total_results_text if num.isdigit()]) # now will clean it up and remove all the characters that are not a number .
         print("Keyword: " + keyToSearch)
         print("Values: " + str(values[i]))
